@@ -13,7 +13,7 @@ def show_menu():
 
 def go_forward(health, coins):
     health -= 15
-    print("\n🚶 Ты пришла к центру города! Но очень устала. ( -15)")
+    print("\n Ты пришла к центру города! Но очень устала. ( -15)")
     return health, coins
 
 def look_around(health, coins):
