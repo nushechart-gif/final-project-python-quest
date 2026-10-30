@@ -1,95 +1,115 @@
 player = {
-  "name": "name",
-    "health":100,
+    "name": "name",
+    "health": 100,
     "coins": 50,
-    "turns":0,
-    "inventory":[]
+    "turns": 0,
+    "gender": "male",
+    "inventory": [],
 }
+
+
+def get_pronoun(gender: str, **values) -> str:
+    return values.get(gender, "...")
+
+
 def show_status(player):
-    print("твои характеристики")
+    print("твои характеристики:")
     for key, values in player.items():
-        print(key,"-",values)
-    
+        print(key, "-", values)
+
+
 def start():
     print("\nТы зашла в город. Твои действия:")
     print("  1. Идти вперёд")
     print("  2. Выйти")
     choice = input("\nТвой выбор: ").lower().strip()
     return choice
+
+
 def city_center():
-    print("\n Ты пришла к центру города, куда двинешься дальше?")
+    word = get_pronoun(player["gender"], male="пришел", female="пришла")
+    print(f"\nТы {word} к центру города, куда двинешься дальше?")
     print("  1. Отдохнуть в гостинице")
     print("  2. Подкрепиться в местном кафе")
     print("  3. Осмотреться (фонтан)")
     print("  4. Выйти из игры")
+    print("  5. Показать статистику")
     choice = input("\nТвой выбор: ").lower().strip()
     return choice
 
-    
 
 def fountain(player):
-    solved = False
-    while not solved:
-        word = input("введи слово палиндром: ") .lower().strip()
-        if word =="выйти":
+    while 1:
+        word = input("введи слово палиндром: ").lower().strip()
+        if word == "выйти":
             break
-        reversed_word = word[:: -1]
-        if word == reversed_word:
-            print("молодец! у тебя появилась бутылочка живой воды!")
+        reversed_word = word[::-1]
+        if word == reversed_word and len(word) > 2:
+            word = get_pronoun(player["gender"], male="получил", female="получила")
+            print(f"молодец! ты {word} бутылочку живой воды!")
             player["inventory"].append("Бутылочка воды")
-            solved = True
-        else:
-             print("попробуй еще раз")
-        
-    return player
-   
-# def look_around(health, coins):
-#     print("\n Ты осматриваешься и видишь фонтан.")
-#     print("\n хочешь живой воды, реши головоломку")
-#     print("\n 1 - решить головоломку")
-#     print("\n 2 - вернуться в центр")
-#     action = input("твой выбор: ").lower().strip()
-#     if action == 1 or "решить головоломку":
-
-
-# def hotel(health,coins):
-#     print("Ты нашла гостиницу")
-#     if coins >=50:
-#         health +=30
-#         coins -=50
-#         print(f"Ты выспалась у тебя {health} здоровья, твой баланс {coins} монеток")
-#     else:
-#         print("У тебя недостаточно денег")
-#     return health, coins
-
-print()
-print(" Добро пожаловать в Твинкс!")
-print()
-
-while player["health"] > 0 and player["coins"] >= 0:
-    player["turns"] += 1
-    show_status(player)
-    choice = start()
-
-    if choice == "1" or choice == "идти вперед":
-        center_choice = city_center()        
-
-        if center_choice == "1":
-            print(" Гостиница — в разработке")
-        elif center_choice == "2":
-            print(" Кафе — в разработке")
-        elif center_choice == "3":
-            player = fountain(player)       
-        elif center_choice == "4":
-            print("\n Ты решила уйти. Спасибо за игру!")
             break
-        else:
-            print(" Неверный выбор.")
+        print("попробуй еще раз")
 
-    elif choice == "2" or choice == "выйти":
-        print("\n Ты решила уйти. Спасибо за игру!")
-        break                              
+    return player
 
-    else:
-        print(" Неверный выбор. Попробуй ещё раз.")
-    
+
+def motel(player):
+    pass
+
+
+def cafe(player):
+    pass
+
+
+def main():
+    print()
+    print("Добро пожаловать в Твинкс!")
+    print()
+
+    choice = start()
+    if choice == "выйти":
+        print("Ты покидаешь Твинкс")
+        return
+
+    while player["health"] > 0 and player["coins"] >= 0:
+        player["turns"] += 1
+        loc = player.get("location")
+
+        # старт
+        if loc is None or loc == "центр":
+            player["location"] = "центр"
+            choice = city_center()
+            match choice:
+                case "1":  # идти в гостиницу
+                    player["location"] = "гостиница"
+                case "2":  # идти в кафе
+                    player["location"] = "кафе"
+                case "3":  # идти в фонтан
+                    player["location"] = "фонтан"
+                case "4":
+                    word = get_pronoun(player["gender"], male="решил", female="решила")
+                    print(f"\nТы {word} уйти. Спасибо за игру!")
+                    return
+                case "5":  # показать статистику
+                    show_status(player)
+                case _:
+                    print("Неверный выбор.")
+
+            continue
+        # логика гостиницы
+        elif loc == "гостинциа":
+            motel(player)
+            player["location"] = "центр"
+        # логика кафе
+        elif loc == "кафе":
+            cafe(player)
+            player["location"] = "центр"
+        # логика фонтана
+        elif loc == "фонтан":
+            fountain(player)
+            player["location"] = "центр"
+
+
+if __name__ == "__main__":
+    main()
